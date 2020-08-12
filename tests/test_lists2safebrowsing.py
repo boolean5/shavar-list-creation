@@ -1,10 +1,10 @@
-import ConfigParser
+import configparser
 import hashlib
 import json
 import time
+from unittest.mock import call, patch, mock_open
 
 import pytest
-from mock import call, patch, mock_open
 from trackingprotection_tools import DisconnectParser
 
 import lists2safebrowsing as l2s
@@ -532,7 +532,7 @@ def test_process_list(capsys, chunknum, log, list_type):
 
 def _get_entity_or_plugin_lists(chunknum, config, function, section, data):
     """Auxiliary function for get_entity_lists/get_plugin_lists tests."""
-    with patch("lists2safebrowsing.urllib2.urlopen",
+    with patch("lists2safebrowsing.urlopen",
                mock_open(read_data=data.encode())) as mocked_urlopen, \
             patch("lists2safebrowsing.open", mock_open()) as mocked_open:
         output_file, _ = function(config, section, chunknum)
@@ -553,7 +553,7 @@ def _get_entity_or_plugin_lists(chunknum, config, function, section, data):
 )
 def test_get_entity_lists(chunknum, section, version, testcase):
     """Test creating an entity list from a configuration section."""
-    config = ConfigParser.ConfigParser()
+    config = configparser.ConfigParser()
     config.readfp(open("sample_shavar_list_creation.ini"))
 
     if version:
@@ -586,7 +586,7 @@ def test_get_entity_lists(chunknum, section, version, testcase):
 
 def test_get_plugin_lists(chunknum):
     """Test creating a plugin blocklist from a configuration section."""
-    config = ConfigParser.ConfigParser()
+    config = configparser.ConfigParser()
     config.readfp(open("sample_shavar_list_creation.ini"))
     section = "plugin-blocklist"
 
@@ -617,7 +617,7 @@ def test_get_plugin_lists(chunknum):
 
 def test_get_plugin_lists_empty_url(chunknum):
     """Test empty blocklist URL handling in get_plugin_lists."""
-    config = ConfigParser.ConfigParser()
+    config = configparser.ConfigParser()
     config.readfp(open("sample_shavar_list_creation.ini"))
     section = "plugin-blocklist"
 
@@ -634,7 +634,7 @@ def test_get_plugin_lists_empty_url(chunknum):
 )
 def test_get_tracker_lists(parser, chunknum, section, domains, testcase):
     """Test creating a tracker blocklist from a configuration section."""
-    config = ConfigParser.ConfigParser()
+    config = configparser.ConfigParser()
     config.readfp(open("sample_shavar_list_creation.ini"))
     version = None
 
