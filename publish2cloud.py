@@ -59,7 +59,7 @@ def chunk_metadata(fp):
     # Read the first 25 bytes and look for a new line.  Since this is a file
     # formatted like a chunk, a end of the chunk header(a newline) should be
     # found early.
-    header = fp.read(25)
+    header = fp.read(25).decode()
     eoh = header.find('\n')
     chunktype, chunknum, hash_size, data_len = header[:eoh].split(':')
     return dict(
@@ -96,7 +96,7 @@ def put_new_record_remote_settings(config, section, data):
 
     if not rec_resp:
         print('Failed to create/update record for %s. Error: %s' %
-              (data['Name'], rec_resp.content))
+              (data['Name'], rec_resp.content.decode()))
         return rec_resp
 
     attachment_url = record_url + '/attachment'
@@ -154,7 +154,7 @@ def new_data_to_publish_to_s3(config, section, new):
                   's3://{1}/{2}'.format(section, bucket.name, s3key))
             key = boto.s3.key.Key(bucket)
             key.key = s3key
-            key.set_contents_from_string('a:1:32:32\n' + 32 * '1')
+            key.set_contents_from_string(b'a:1:32:32\n' + 32 * b'1')
         current = tempfile.TemporaryFile()
         key.get_contents_to_file(current)
         key.set_acl('bucket-owner-full-control')

@@ -164,12 +164,14 @@ def add_domain_to_list(domain, previous_domains, log_file, output):
     if psl.publicsuffix(psl_d) == psl_d:
         raise ValueError("Domain '%s' is in the public section of the "
                          "Public Suffix List" % psl_d)
+
+    domain_hash = hashlib.sha256(canon_d.encode())
     if log_file:
         log_file.write("[m] %s >> %s\n" % (domain, canon_d))
         log_file.write("[canonicalized] %s\n" % (canon_d))
-        log_file.write("[hash] %s\n" % hashlib.sha256(canon_d).hexdigest())
+        log_file.write("[hash] %s\n" % domain_hash.hexdigest())
     previous_domains.add(canon_d)
-    output.append(hashlib.sha256(canon_d).digest())
+    output.append(domain_hash.digest())
     return True
 
 
@@ -317,14 +319,14 @@ def write_safebrowsing_blocklist(domains, output_name, log_file, chunk,
             publishing += 1
 
     # Write safebrowsing-list format header
-    output_string = "a:%u:32:%s\n" % (chunk, hashdata_bytes)
-    output_string += ''.join(output)
+    output_bytes = b"a:%u:32:%s\n" % (chunk, hashdata_bytes)
+    output_bytes += b''.join(output)
     # When testing on shavar-prod-lists no output file is provided
     if output_file:
-        output_file.write(output_string)
+        output_file.write(output_bytes)
 
-    print("Tracking protection(%s): publishing %d items; file size %d" % (
-        name, publishing, len(output_string)))
+    print("Tracking protection(%s): publishing %d items; file size %d" %
+          (name, publishing, len(output_bytes)))
     return
 
 
@@ -337,15 +339,12 @@ def process_entitylist(incoming, chunk, output_file, log_file, list_variant):
     hashdata_bytes = 0
     output = []
     for name, entity in sorted(incoming.items()):
-        name = name.encode('utf-8')
         for prop in entity['properties']:
             for res in entity['resources']:
-                prop = prop.encode('utf-8')
-                res = res.encode('utf-8')
                 if prop == res:
                     continue
                 d = canonicalize('%s/?resource=%s' % (prop, res))
-                h = hashlib.sha256(d)
+                h = hashlib.sha256(d.encode())
                 if log_file:
                     log_file.write(
                         "[entity] %s >> (canonicalized) %s, hash %s\n"
@@ -354,10 +353,10 @@ def process_entitylist(incoming, chunk, output_file, log_file, list_variant):
                 urls.add(d)
                 publishing += 1
                 hashdata_bytes += 32
-                output.append(hashlib.sha256(d).digest())
+                output.append(h.digest())
 
     # Write the data file
-    output_file.write("a:%u:32:%s\n" % (chunk, hashdata_bytes))
+    output_file.write(b"a:%u:32:%s\n" % (chunk, hashdata_bytes))
     # FIXME: we should really sort the output
     for o in output:
         output_file.write(o)
@@ -375,9 +374,9 @@ def process_plugin_blocklist(incoming, chunk, output_file, log_file,
     hashdata_bytes = 0
     output = []
     for d in incoming:
-        canon_d = canonicalize(d.encode('utf-8'))
+        canon_d = canonicalize(d)
         if canon_d not in domains:
-            h = hashlib.sha256(canon_d)
+            h = hashlib.sha256(canon_d.encode())
             if log_file:
                 log_file.write(
                     "[plugin-blocklist] %s >> (canonicalized) %s, hash %s\n"
@@ -386,9 +385,9 @@ def process_plugin_blocklist(incoming, chunk, output_file, log_file,
             publishing += 1
             domains.add(canon_d)
             hashdata_bytes += 32
-            output.append(hashlib.sha256(canon_d).digest())
+            output.append(h.digest())
     # Write the data file
-    output_file.write("a:%u:32:%s\n" % (chunk, hashdata_bytes))
+    output_file.write(b"a:%u:32:%s\n" % (chunk, hashdata_bytes))
     # FIXME: we should really sort the output
     for o in output:
         output_file.write(o)
@@ -502,7 +501,7 @@ def get_plugin_lists(config, section, chunknum):
                          "blocklist URL must be specified." % section)
 
     for line in urllib2.urlopen(blocklist_url).readlines():
-        line = line.strip()
+        line = line.decode().strip()
         # don't add blank lines or comments
         if not line or line.startswith('#'):
             continue
