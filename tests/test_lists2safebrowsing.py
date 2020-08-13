@@ -554,7 +554,7 @@ def _get_entity_or_plugin_lists(chunknum, config, function, section, data):
 def test_get_entity_lists(chunknum, section, version, testcase):
     """Test creating an entity list from a configuration section."""
     config = configparser.ConfigParser()
-    config.readfp(open("sample_shavar_list_creation.ini"))
+    config.read_file(open("sample_shavar_list_creation.ini"))
 
     if version:
         config.set(section, "version", version)
@@ -587,7 +587,7 @@ def test_get_entity_lists(chunknum, section, version, testcase):
 def test_get_plugin_lists(chunknum):
     """Test creating a plugin blocklist from a configuration section."""
     config = configparser.ConfigParser()
-    config.readfp(open("sample_shavar_list_creation.ini"))
+    config.read_file(open("sample_shavar_list_creation.ini"))
     section = "plugin-blocklist"
 
     domains = [d[1] for d in CANONICALIZE_TESTCASES[:2]]
@@ -618,7 +618,7 @@ def test_get_plugin_lists(chunknum):
 def test_get_plugin_lists_empty_url(chunknum):
     """Test empty blocklist URL handling in get_plugin_lists."""
     config = configparser.ConfigParser()
-    config.readfp(open("sample_shavar_list_creation.ini"))
+    config.read_file(open("sample_shavar_list_creation.ini"))
     section = "plugin-blocklist"
 
     config.set(section, "blocklist", "")
@@ -635,7 +635,7 @@ def test_get_plugin_lists_empty_url(chunknum):
 def test_get_tracker_lists(parser, chunknum, section, domains, testcase):
     """Test creating a tracker blocklist from a configuration section."""
     config = configparser.ConfigParser()
-    config.readfp(open("sample_shavar_list_creation.ini"))
+    config.read_file(open("sample_shavar_list_creation.ini"))
     version = None
 
     if testcase == "default":
