@@ -4,5 +4,5 @@ requests==2.24.0
 # temporarily get trackingprotection from GitHub due to
 # https://github.com/mozilla/trackingprotection-tools/pull/19
 # and Steve being out
-git+https://github.com/mozilla/trackingprotection-tools.git@v0.6.0#egg=trackingprotection-tools
+git+https://github.com/mozilla/trackingprotection-tools.git@v0.6.1#egg=trackingprotection-tools
 packaging==20.4
