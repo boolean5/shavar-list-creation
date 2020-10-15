@@ -390,16 +390,16 @@ def process_plugin_blocklist(incoming, chunk, output_file, log_file,
     domains.sort(key=lambda d: d[1])
     for domain, canonicalized_domain in domains:
         if canonicalized_domain != previous_domain:
-            h = hashlib.sha256(canonicalized_domain.encocde())
+            domain_hash = hashlib.sha256(canonicalized_domain.encode())
             if log_file:
                 log_file.write(
                     "[plugin-blocklist] %s >> (canonicalized) %s, hash %s\n"
-                    % (domain, canonicalized_domain, h.hexdigest())
+                    % (domain, canonicalized_domain, domain_hash.hexdigest())
                 )
             publishing += 1
             hashdata_bytes += 32
             previous_domain = canonicalized_domain
-            output.append(hashlib.sha256(canonicalized_domain).digest())
+            output.append(domain_hash.digest())
 
     # Write the data file
     output_file.write(b"a:%u:32:%s\n" % (chunk, hashdata_bytes))
