@@ -366,7 +366,7 @@ def process_entitylist(incoming, chunk, output_file, log_file, list_variant):
                 )
             publishing += 1
             hashdata_bytes += 32
-            output.append(hashlib.sha256(url).digest())
+            output.append(hashlib.sha256(url.encode()).digest())
 
     # Write the data file
     output_file.write(b"a:%u:32:%s\n" % (chunk, hashdata_bytes))
