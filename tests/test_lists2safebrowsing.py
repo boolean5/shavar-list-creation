@@ -255,7 +255,7 @@ def chunknum():
 
 @pytest.fixture
 def config():
-    config = ConfigParser.ConfigParser()
+    config = configparser.ConfigParser()
     config.readfp(open("sample_shavar_list_creation.ini"))
     return config
 
@@ -302,7 +302,7 @@ def test_get_list_url(config, section, key, expected_url):
 def test_load_json_from_url(config):
     """Test loading the JSON entity list from a URL."""
     data = json.dumps(TEST_ENTITY_DICT)
-    with patch("lists2safebrowsing.urllib2.urlopen",
+    with patch("lists2safebrowsing.urlopen",
                mock_open(read_data=data)) as mocked_open:
         loaded_json = l2s.load_json_from_url(config, "entity-whitelist",
                                              "entity_url")
@@ -320,7 +320,7 @@ def test_load_json_from_url(config):
 def test_load_json_from_url_exception(capsys, config):
     """Test load_json_from_url when opening the URL fails."""
     error = Exception
-    with patch("lists2safebrowsing.urllib2.urlopen", side_effect=error):
+    with patch("lists2safebrowsing.urlopen", side_effect=error):
         with pytest.raises(SystemExit) as e:
             l2s.load_json_from_url(config, "entity-whitelist", "entity_url")
 
@@ -362,7 +362,6 @@ def test_canonicalize(url, expected):
 def _add_domain_to_list(domain, canonicalized_domain, previous_domain,
                         output):
     """Auxiliary function for add_domain_to_list tests."""
-    canonicalized_domain = l2s.canonicalize(domain)
     domain_hash = hashlib.sha256(canonicalized_domain.encode())
 
     with patch("test_lists2safebrowsing.open", mock_open()):
@@ -378,7 +377,7 @@ def _add_domain_to_list(domain, canonicalized_domain, previous_domain,
 def test_add_domain_to_list():
     """Test adding a domain to a blocklist."""
     domain = "https://www.host.com"
-    canonicalized_domain = "www.host.com"
+    canonicalized_domain = "www.host.com/"
     added, domain_hash, log_writes, output = (
         _add_domain_to_list(domain, canonicalized_domain, None, [])
     )

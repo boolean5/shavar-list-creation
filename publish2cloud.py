@@ -56,7 +56,7 @@ except configparser.NoOptionError as err:
 
 
 def chunk_metadata(fp):
-    header = fp.readline().rstrip('\n')
+    header = fp.readline().decode().rstrip('\n')
     chunktype, chunknum, hash_size, data_len = header.split(':')
     return dict(
         type=chunktype, num=chunknum, hash_size=hash_size, len=data_len,
